@@ -8,6 +8,8 @@
 void swapWithLock(m_data& d1, m_data& d2)
 {
     std::lock(d1.m_mutex, d2.m_mutex);
+    std::lock_guard<std::mutex> lock1(d1.m_mutex, std::adopt_lock);
+    std::lock_guard<std::mutex> lock2(d2.m_mutex, std::adopt_lock);
 
     int tmp = d1.get_data();
     d1.set_data(d2.get_data());
@@ -16,9 +18,6 @@ void swapWithLock(m_data& d1, m_data& d2)
     std::cout << std::endl << "This Thread - swapWithLock" << std::endl;
     std::cout << "value_1 d1 = " << d1.get_data() << ";" << std::endl;
     std::cout << "value_1 d2 = " << d2.get_data() << ";" << std::endl;
-
-    d1.m_mutex.unlock();
-    d2.m_mutex.unlock();
 }
 
 void swapWithScopedLock(m_data& d1, m_data& d2)
@@ -38,8 +37,7 @@ void swapWithUniqueLock(m_data& d1, m_data& d2)
 {
     std::unique_lock<std::mutex> lock1(d1.m_mutex, std::defer_lock);
     std::unique_lock<std::mutex> lock2(d2.m_mutex, std::defer_lock);
-    lock1.lock();
-    lock2.lock();
+    std::lock(lock1, lock2);
 
     int tmp = d1.get_data();
     d1.set_data(d2.get_data());
